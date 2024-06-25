@@ -37,7 +37,7 @@
           // .replace(/^.+,/, '')
           ;
         // 顯示圖案
-        var img = new Image();
+        const img = new Image(); // 20240625：根據全端友人說法，現在不太用var了
         img.src = base64String;
         console.log(base64String);
         $('#preview').html(img); // HTML小知識 src可以直接顯示base64

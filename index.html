@@ -10,11 +10,49 @@
 
 <body>
   <input type="file" class="form-control" id="upload_file" name="upload_file" accept="image/png, image/jpeg" />
+  <div id="preview"></div>
 
   <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
     crossorigin="anonymous"></script>
   <script>
-  // https://ithelp.ithome.com.tw/articles/10198431
+  // https://stackoverflow.com/questions/12281775/get-data-from-file-input-in-jquery
+  // 看起來沒東西的時候還不能讀呢..
+  // const uploadFile = $('#upload_file').prop('files'); 
+  // 改用on change? https://codepen.io/bear30921/pen/ZJRpbx
+    
+  $('#upload_file').on('change', function (event){
+    // 透過id取得file
+    const uploadFileBytes = event.target.files[0];
+    console.log(uploadFileBytes);
+    // https://pqina.nl/blog/convert-a-file-to-a-base64-string-with-javascript/
+
+    // 圖片轉檔
+    // https://blog.csdn.net/XH_jing/article/details/114521681
+    let base64String = "";
+
+    const reader = new FileReader();
+    reader.onload = function () {
+        base64String = reader.result
+          // .replace('data:', '') // 但有個但書，去除資訊就不能用img src顯示了啦
+          // .replace(/^.+,/, '')
+          ;
+        // 顯示圖案
+        var img = new Image();
+        img.src = base64String;
+        console.log(base64String);
+        $('#preview').html(img); // HTML小知識 src可以直接顯示base64
+    };
+    reader.readAsDataURL(uploadFileBytes);
+
+    // 總覺得我硬想跟JS的執行順序做對就更痛苦...
+    /*本來這些段落是在外邊
+    var img = new Image();
+    console.log(base64String); // 空的沒東西.............
+    img.src = base64String;
+    $('#preview').html(img);
+    */
+  });
+
   </script>
 </body>
 

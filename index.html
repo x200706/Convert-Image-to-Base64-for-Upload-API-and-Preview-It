@@ -15,7 +15,7 @@
 </style>
 <body>
   這東西是即時的嗎 是欸 不用按Run 只是要重整<br>
-  寫前端codepen是不是比較好用@@<br><br>
+  寫前端Codepen是不是比較好用@@<br><br>
   <input type="file" class="form-control" id="upload_file" name="upload_file" accept="image/png, image/jpeg" />
   <div id="preview"></div>
 
@@ -31,32 +31,16 @@
     // 透過id取得file
     const uploadFileBytes = event.target.files[0];
     // https://pqina.nl/blog/convert-a-file-to-a-base64-string-with-javascript/
-
     // 圖片轉檔
     // https://blog.csdn.net/XH_jing/article/details/114521681
     let base64String = '測試'; // 想拿回這小傢伙 得先了解callback 承諾 或await
     // 話說你到底要用單引還雙引可以統一嗎=_=
-    
-    // 原本拿不到base64的寫法 不過可以預覽就是了
-    // const reader = new FileReader();
-    // reader.onload = function () {
-    //     base64String = reader.result
-    //       // .replace('data:', '') // 但有個但書，去除資訊就不能用img src顯示了啦
-    //       // .replace(/^.+,/, '')
-    //       ;
-    //     // 顯示圖案
-    //     const img = new Image(); // 20240625：根據全端友人說法，現在不太用var了
-    //     img.src = base64String;
-    //     console.log(base64String);
-    //     $('#preview').html(img); // HTML小知識 src可以直接顯示base64
-    // };
-    // reader.readAsDataURL(uploadFileBytes);
+        
     // 選個比較修羅的 Promise...
     function getBase64StringAndPreviewImg(uploadFileBytes) {
       const reader = new FileReader();
-      
       return new Promise((resolve, reject) => { // reject有機會再學QQ
-        // DO SOMETHING
+        // 沒寫setTimeout要考慮使用await調用 等待結果確實回來
         reader.onload = function () {
             base64StringForShow = reader.result
               // .replace('data:', '') // 但有個但書，去除資訊就不能用img src顯示了啦
@@ -70,39 +54,34 @@
             const img = new Image(); // 20240625：根據全端友人說法，現在不太用var了
             img.src = base64StringForShow;
             $('#preview').html(img); // HTML小知識 src可以直接顯示base64
-          resolve(base64StringForAPI); // 這邊就要回傳了!!!
+          resolve(base64StringForAPI); 
         };
         reader.readAsDataURL(uploadFileBytes);
+        
       });
     }
-    // base64String = 你以為在寫PHP喔 而且這樣base64String其實是一個Promise
-    getBase64StringAndPreviewImg(uploadFileBytes)
-      .then((base64StringForAPI) => {
-        console.log("是最上面宣告的" + base64String);
-        console.log("這是Promise裡面的" + base64StringForAPI);
-        // base64String  = base64StringForAPI; // 給外面賦值裡面的...徒勞無功!!
-      })
-      .catch((error) => {
+
+    async function processFile() {
+      try {
+        base64String = await getBase64StringAndPreviewImg(uploadFileBytes);
+        // 在這邊AJAX 可以寫一個function調用
+      } catch (error) {
         console.log(error);
-      });
-    console.log("有拿到嗎？" + base64String); //TODO還是拿不到
+      }
+    }
+    processFile(); // 顯式呼叫
 
-    // 總覺得我硬想跟JS的執行順序做對就更痛苦...
-    /*本來這些段落是在外邊
-    var img = new Image();
-    console.log(base64String); // 空的沒東西.............
-    img.src = base64String;
-    $('#preview').html(img);
-    */
-
-    /* 跟別人討論功能
-    17:46 Crystal 啊 可是我想要把base64str組合成json發出去
-    17:46 Crystal 現在他只活在
-    17:47 Crystal     reader.onload = function () {之中
-    17:47 Crystal What
-    17:47 Crystal 我用let也沒辦法接她出來
-    17:47 Crystal JS這部分就是蠻討厭的
-    */
+    // 不接await的Promise Chain寫法：如果有連續要處理的 可以不斷return new Promise然後resolve然後then下去
+    // newPromise = 
+    // getBase64StringAndPreviewImg(uploadFileBytes)
+    //   .then((base64StringForAPI) => {
+    //     console.log("是最上面宣告的" + base64String);
+    //     console.log("這是Promise裡面的" + base64StringForAPI);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+    // console.log("有拿到嗎？" + base64String); // 外面拿不到
   });
 
   </script>
